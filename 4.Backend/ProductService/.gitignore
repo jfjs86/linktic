@@ -1,0 +1,53 @@
+# Java and Spring Boot
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+
+# IDEs and Tools
+/.idea/
+/*.iml
+/.project
+/.classpath
+/.settings/
+/target/
+/bin/
+/out/
+/.mvn
+/.gradle
+/build/
+!**/src/main/**/build/
+
+# Maven
+/log
+/logs
+/target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+
+# Gradle
+.gradle
+build/
+
+# Lombok
+*.lombok.config
+*.lombok.jar
+
+# Others
+.DS_Store
+.env
+.vscode/
+*.tmp
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
