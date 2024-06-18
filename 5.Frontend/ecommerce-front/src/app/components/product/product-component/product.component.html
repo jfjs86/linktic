@@ -1,0 +1,21 @@
+<div class="container">
+  <div>
+    <h2>Bienvenido a la Tienda Virtual</h2>
+    <p>Selecciona el producto de tu preferencia.</p>
+  </div>
+  <div class="row">
+    <div class="col-md-4 mb-4" *ngFor="let product of products?.productList">
+      <div class="card h-100">
+        <img [src]="product.productImageUrl" class="card-img-top card-img-custom" alt="Imagen del producto">
+        <div class="card-body">
+          <h5 class="card-title">{{ product.productName }}</h5>
+          <p class="card-text"><strong>Descripción: </strong>{{ product.productDescription }}</p>
+          <p><strong>Precio:</strong> {{ product.productPrice | currency:'USD':'symbol':'1.2-2' }}</p>
+          <p><strong>Cantidad disponible:</strong> {{ product.productAvailable }}</p>
+          <p> <button class="btn btn-primary"  (click)="addProductModal(product)" >Agregar</button> </p>          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

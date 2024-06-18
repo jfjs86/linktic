@@ -1,0 +1,20 @@
+<div class="container mt-5">
+    <h2>Historial de Pedidos</h2>
+    <div class="row">
+      <div class="col-md-8">
+        <div class="list-group">
+          <div *ngFor="let order of orderResponse" class="list-group-item">
+            <h2 class="mb-1"><Strong>Producto(s)</Strong></h2>           
+            <div *ngFor="let product of order.products" class="list-group-item">                
+                <p class="mb-1"><Strong>Nombre producto: </Strong> {{ product.productName }}</p>
+                <p class="mb-1"><Strong>Cantidad: </Strong> {{ product.productQuantity }}</p>
+                <p class="mb-1"> <strong> Precio: </strong> {{ product.productPrice | currency:'USD':'symbol':'1.2-2'}}</p>
+            </div>        
+            <p class="mb-1"><strong>Total Pedidos: </strong>{{ order.totalPrice | currency:'USD':'symbol':'1.2-2' }}</p>
+            <p class="mb-1"><strong>Estado: </strong>{{ order.active | boolean }} <a *ngIf="order.active" routerLink="/orders">Ver pedido</a></p>
+          </div>
+        </div>
+        <br>
+      </div>
+    </div>
+  </div>

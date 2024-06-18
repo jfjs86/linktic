@@ -1,0 +1,12 @@
+<div class="card h-100">
+    <img [src]="product.productImageUrl" class="card-img-top card-img-custom" alt="Imagen del producto">
+    <div class="card-body">
+      <h5 class="card-title">{{ productRequest.productName }}</h5>
+      <p class="card-text"><strong>Descripción: </strong>{{ productRequest.productDescription }}</p>
+      <p><strong>Precio:</strong> {{ productRequest.productPrice | currency:'USD':'symbol':'1.2-2' }}</p>
+      <p><strong>Cantidad disponible:</strong> {{ product.productAvailable }}</p>
+      <p><strong>Cantidad:</strong><input type="number"min="1" max="99" [(ngModel)]="productRequest.productQuantity "(input)="calculateAmount()"></p>
+      <p><strong>Precio Total:</strong> {{ productRequest.productTotalPrice| currency:'USD':'symbol':'1.2-2' }}</p>
+      <p> <button class="btn btn-primary" (click)="addProduct()" >Agregar</button> </p>
+    </div>
+  </div>

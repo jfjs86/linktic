@@ -1,0 +1,11 @@
+  .img-column {        
+    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .img-column img {
+    display: block;
+    width: 25%;
+    height: auto;
+  }

@@ -1,0 +1,38 @@
+
+<div class="container mt-5">
+    <h2 class="mb-4">Pedidos</h2>
+
+    <div *ngIf="(!orderResponse)||(orderResponse && !orderResponse.active)">
+      <strong>No tienes pedidos activos</strong>
+    </div>
+
+    <div *ngIf="orderResponse && orderResponse.active">
+
+        <table class="table table-bordered">
+          <tbody>
+            <tr *ngFor="let product of orderResponse.products"> 
+              <td class="img-column"><img src={{product.productImageUrl}} alt="Producto" ></td>
+              <td>
+                <strong>{{product.productName}}</strong>
+                <p>{{product.productDescription}}</p>
+              </td>
+              <td><input type="number"min="1" max="99" [(ngModel)]="product.productQuantity "(input)="calculateAmount(product)"></td>
+              <td>{{product.productQuantity}}</td>
+              <td>{{product.productTotalPrice | currency:'USD':'symbol':'1.2-2'}}</td>
+              <td> <button class="btn btn-danger"  (click)="removeProduct(product)" >Quitar</button> </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-right"><strong>Precio Total:</strong></td>
+              <td>{{orderResponse.totalPrice | currency:'USD':'symbol':'1.2-2'}}</td>
+            </tr>
+          </tfoot>
+        </table>
+        <div class="text-right">
+          <button class="btn btn-primary" (click)="paidOrder()">Pagar</button>
+        </div>
+      </div>
+
+    </div>
+
