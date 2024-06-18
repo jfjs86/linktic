@@ -3,7 +3,6 @@ package com.linktic.ecommerce.order.service.impl;
 import com.linktic.ecommerce.order.dto.OrderRequestDto;
 import com.linktic.ecommerce.order.dto.OrderResponseDto;
 import com.linktic.ecommerce.order.dto.ProductRequestDto;
-import com.linktic.ecommerce.order.dto.ProductResponseDto;
 import com.linktic.ecommerce.order.model.Order;
 import com.linktic.ecommerce.order.model.OrderProduct;
 import com.linktic.ecommerce.order.model.OrderProductId;
@@ -12,16 +11,13 @@ import com.linktic.ecommerce.order.repository.OrderProductRepository;
 import com.linktic.ecommerce.order.repository.OrderRepository;
 import com.linktic.ecommerce.order.repository.ProductRepository;
 import com.linktic.ecommerce.order.service.OrderService;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 @Service
@@ -37,16 +33,14 @@ public class OrderServiceImpl implements OrderService {
     private OrderProductRepository orderProductRepository;
 
     @Override
-//    @Transactional
     public ResponseEntity<OrderResponseDto> saveOrder(OrderRequestDto orderRequest) {
-//        int inactiveUpdate = orderRepository.inactiveOrder(orderRequest.getOrderId());
         Order order = createOrUpdateOrder(orderRequest);
         order = orderRepository.save(order);
 
         if (order == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
-        inactiveOrders(orderRequest);
+        inactiveOrders(order);
         List<Product> products = getProductPerOrder(order);
 
         if (products == null) {
@@ -55,20 +49,9 @@ public class OrderServiceImpl implements OrderService {
 
         OrderResponseDto orderResponseDto = new OrderResponseDto();
         orderResponseDto.setOrderId(order.getId());
+        orderResponseDto.setProducts(generateProductResponse(order));
         orderResponseDto.setTotalPrice(order.getTotalPrice());
-
-        List<ProductResponseDto> productResponseList = new ArrayList<>();
-        for (Product product : products) {
-            ProductResponseDto productResponseDto = new ProductResponseDto();
-            productResponseDto.setProductId(product.getId());
-            productResponseDto.setProductName(product.getName());
-            productResponseDto.setProductDescription(product.getDescription());
-            productResponseDto.setProductPrice(product.getPrice());
-
-            productResponseList.add(productResponseDto);
-        }
-
-        orderResponseDto.setProducts(productResponseList);
+        orderResponseDto.setActive(order.getActive());
         validateAvalaible(products);
 
         return ResponseEntity.ok(orderResponseDto);
@@ -89,27 +72,14 @@ public class OrderServiceImpl implements OrderService {
                 OrderResponseDto orderResponseDto = new OrderResponseDto();
 
                 orderResponseDto.setOrderId(or.getId());
+                orderResponseDto.setProducts(generateProductResponse(or));
                 orderResponseDto.setTotalPrice(or.getTotalPrice());
-
-                List<ProductResponseDto> productResponseList = new ArrayList<>();
-
-                List<Product> products = getProductPerOrder(or);
-
-                for(Product pr : products){
-                    ProductResponseDto productResponseDto = new ProductResponseDto();
-                    productResponseDto.setProductId(pr.getId());
-                    productResponseDto.setProductName(pr.getName());
-                    productResponseDto.setProductPrice(pr.getPrice());
-                    productResponseDto.setProductDescription(pr.getDescription());
-
-                    productResponseList.add(productResponseDto);
-
-                }
-
-                orderResponseDto.setProducts(productResponseList);
+                orderResponseDto.setActive(or.getActive());
                 orderResponseList.add(orderResponseDto);
 
             }
+
+            Collections.sort(orderResponseList, Comparator.comparing(OrderResponseDto::getActive).reversed());
 
             return ResponseEntity.ok(orderResponseList);
 
@@ -127,27 +97,13 @@ public class OrderServiceImpl implements OrderService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"No order found");
         }else{
             Order order = orderRepository.getActiveOrder().get();
-
-
             try{
                 OrderResponseDto orderResponseDto = new OrderResponseDto();
-                List<ProductResponseDto> productList = new ArrayList<>();
-                List<Product> products = getProductPerOrder(order);
 
                 orderResponseDto.setOrderId(order.getId());
-
-                for(Product product : products){
-                    ProductResponseDto productResponseDto = new ProductResponseDto();
-                    productResponseDto.setProductId(product.getId());
-                    productResponseDto.setProductAvailable(product.getAvailable());
-                    productResponseDto.setProductPrice(product.getPrice());
-                    productResponseDto.setProductName(product.getName());
-                    productResponseDto.setProductDescription(product.getDescription());
-                    productList.add(productResponseDto);
-                }
-
-                orderResponseDto.setProducts(productList);
+                orderResponseDto.setProducts(generateProductResponse(order));
                 orderResponseDto.setTotalPrice(order.getTotalPrice());
+                orderResponseDto.setActive(order.getActive());
 
                 return ResponseEntity.ok(orderResponseDto);
 
@@ -156,6 +112,36 @@ public class OrderServiceImpl implements OrderService {
             }catch (Exception e){
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
+        }
+    }
+
+    @Override
+    public ResponseEntity<OrderResponseDto> paidOrder(OrderRequestDto orderRequest) {
+
+        Optional<Order> orderOptional = orderRepository.findById(orderRequest.getOrderId());
+
+        if(orderOptional.isPresent()){
+            Order order = orderOptional.get();
+            order.setActive(Boolean.FALSE);
+            order = orderRepository.save(order);
+
+            if(order != null){
+
+                OrderResponseDto orderResponseDto = new OrderResponseDto();
+                orderResponseDto.setOrderId(order.getId());
+                orderResponseDto.setProducts(generateProductResponse(order));
+                orderResponseDto.setTotalPrice(order.getTotalPrice());
+                orderResponseDto.setActive(order.getActive());
+
+                return ResponseEntity.ok(orderResponseDto);
+
+            }else{
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Internal Error");
+            }
+
+
+        }else{
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Not order found");
         }
     }
 
@@ -228,15 +214,42 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
-    private void inactiveOrders(OrderRequestDto orderRequest){
+    private void inactiveOrders(Order savedOrder){
 
-        if(orderRequest.getOrderId() !=0){
-            List<Order> inactiveOrders = orderRepository.getNotCurrentOrders(orderRequest.getOrderId()).get();
+        Optional<List<Order>> inactiveOtional = orderRepository.getNotCurrentOrders(savedOrder.getId());
+
+        if(inactiveOtional.isPresent()){
+            List<Order> inactiveOrders = inactiveOtional.get();
 
             for(Order order : inactiveOrders){
-                order.setActive(false);
+                order.setActive(Boolean.FALSE);
             }
             orderRepository.saveAll(inactiveOrders);
         }
+    }
+
+    private List<ProductRequestDto> generateProductResponse(Order order){
+        List<ProductRequestDto> productRequestList = new ArrayList<>();
+        List<Product> products = getProductPerOrder(order);
+
+        for(Product product : products){
+            ProductRequestDto productRequestDto = new ProductRequestDto();
+            productRequestDto.setProductId(product.getId());
+            productRequestDto.setProductName(product.getName());
+            productRequestDto.setProductPrice(product.getPrice());
+            productRequestDto.setProductDescription(product.getDescription());
+            productRequestDto.setProductImageUrl(product.getImagePath());
+
+            for(OrderProduct orderProduct : order.getOrderProducts()){
+                if(product.getId() == orderProduct.getProduct().getId()){
+                    productRequestDto.setProductQuantity(orderProduct.getProductQuantity());
+                    productRequestDto.setProductTotalPrice(orderProduct.getProductTotal());
+                }
+            }
+
+            productRequestList.add(productRequestDto);
+        }
+
+        return productRequestList;
     }
 }

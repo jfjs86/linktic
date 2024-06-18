@@ -12,4 +12,6 @@ public class ControllerResource {
 
     public static final String GET_ACTIVE_ORDER="/get-active-order";
 
+    public static final String PAID_ORDER="/paid-order";
+
 }

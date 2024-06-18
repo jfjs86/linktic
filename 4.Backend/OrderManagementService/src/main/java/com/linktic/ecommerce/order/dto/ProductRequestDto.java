@@ -11,6 +11,8 @@ public class ProductRequestDto {
     private int productQuantity ;
     private BigDecimal productTotalPrice;
 
+    private String productImageUrl;
+
     public int getProductId() {
         return productId;
     }
@@ -57,5 +59,13 @@ public class ProductRequestDto {
 
     public void setProductTotalPrice(BigDecimal productTotalPrice) {
         this.productTotalPrice = productTotalPrice;
+    }
+
+    public String getProductImageUrl() {
+        return productImageUrl;
+    }
+
+    public void setProductImageUrl(String productImageUrl) {
+        this.productImageUrl = productImageUrl;
     }
 }

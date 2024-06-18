@@ -37,4 +37,10 @@ public class OrderController {
         return orderService.getActiveOrder();
     }
 
+    @PutMapping(ControllerResource.PAID_ORDER)
+    public ResponseEntity<OrderResponseDto> paiOrder(@RequestBody OrderRequestDto orderRequestDto){
+        return orderService.paidOrder(orderRequestDto);
+    }
+
+
 }

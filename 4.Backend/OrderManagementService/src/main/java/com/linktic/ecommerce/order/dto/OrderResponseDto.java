@@ -7,9 +7,19 @@ public class OrderResponseDto {
 
     private int orderId;
 
-    private List<ProductResponseDto> products;
+    private List<ProductRequestDto> products;
 
     private BigDecimal totalPrice;
+
+    private Boolean isActive;
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
 
     public int getOrderId() {
         return orderId;
@@ -19,11 +29,11 @@ public class OrderResponseDto {
         this.orderId = orderId;
     }
 
-    public List<ProductResponseDto> getProducts() {
+    public List<ProductRequestDto> getProducts() {
         return products;
     }
 
-    public void setProducts(List<ProductResponseDto> products) {
+    public void setProducts(List<ProductRequestDto> products) {
         this.products = products;
     }
 

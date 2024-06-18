@@ -14,4 +14,8 @@ public interface OrderService {
 
     ResponseEntity<OrderResponseDto> getActiveOrder();
 
+    ResponseEntity<OrderResponseDto> paidOrder(OrderRequestDto orderRequest);
+
+
+
 }

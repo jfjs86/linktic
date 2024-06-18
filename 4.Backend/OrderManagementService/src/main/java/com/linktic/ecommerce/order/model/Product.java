@@ -23,9 +23,6 @@ public class Product {
     @Column(name = "ecp_available",nullable = false)
     private int available;
 
-//    @ManyToMany(mappedBy = "product")
-//    private List<Order> order;
-
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderProduct> orderProduct;
 
