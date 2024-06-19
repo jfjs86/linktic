@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrderResponseModel } from 'src/app/models/order/order-response.model';
 import { ProductRequestModel } from 'src/app/models/product/product-request.model';
-import { ImageService } from 'src/app/services/external/image.service';
 import { OrderService } from 'src/app/services/order/order.service';
 
 @Component({
@@ -16,7 +15,6 @@ export class OrderDetailsComponent implements OnInit{
 
   constructor(
     private orderService: OrderService,
-    private imageService: ImageService,
     private router: Router,
     private route: ActivatedRoute,
     ){}
@@ -29,15 +27,7 @@ export class OrderDetailsComponent implements OnInit{
 
   getActiveOrder(){
     this.orderService.getActiveOrder().subscribe(data=>{
-      this.orderResponse = data;
-
-      if(this.orderResponse && this.orderResponse.products){
-        this.orderResponse.products.forEach(product =>{
-          this.imageService.getPresignedUrl(product.productImageUrl)
-            .then(url => product.productImageUrl = url)
-            .catch(err => console.error('Error al obtener URL firmada:', err));
-        });
-      }
+      this.orderResponse = data;    
 
     });
   }

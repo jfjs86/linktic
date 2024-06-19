@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from 'src/app/services/product/product.service';
 import { ProductListModel } from 'src/app/models/product/product-list.model';
 import { ProductResponseModel } from 'src/app/models/product/product-response.model'
-import { ImageService } from 'src/app/services/external/image.service';
 import { OrderRequestModel } from 'src/app/models/order/order-request.model';
 import { OrderService } from 'src/app/services/order/order.service';
 import { OrderResponseModel } from 'src/app/models/order/order-response.model';
@@ -29,7 +28,6 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   constructor(
     private productService: ProductService,
-    private imageService: ImageService,
     private orderService : OrderService,
     private modalService: NgbModal
   ) {}  
@@ -68,15 +66,7 @@ export class ProductComponent implements OnInit, OnDestroy {
   loadProducts() {
     this.productService.getProducts().subscribe(
       (data: any) => {
-        this.products = data;
-
-        if(this.products){
-          this.products.productList?.forEach(product => {
-            this.imageService.getPresignedUrl(product.productImageUrl)
-              .then(url => product.productImageUrl = url)
-              .catch(err => console.error('Error al obtener URL firmada:', err));
-          });
-        }        
+        this.products = data;       
       },
       error => {
         console.error('Error al obtener lista de productos:', error);
@@ -89,7 +79,9 @@ export class ProductComponent implements OnInit, OnDestroy {
       data=>{
         if(data){
           this.orderResponse= data;
-        }        
+        }else{
+          this.generateOrderRequest();
+        }
         console.log("back: ",data);
       },
       error => {

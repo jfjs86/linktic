@@ -163,36 +163,41 @@ public class OrderServiceImpl implements OrderService {
         order.setActive(true);
         order.setTotalPrice(orderRequest.getTotalPrice());
 
-        List<Integer> ids = new ArrayList<>();
-        for (ProductRequestDto pDto : orderRequest.getProducts()) {
-            ids.add(pDto.getProductId());
-        }
+        if(orderRequest.getProducts().size() !=0 ){
 
-        List<Product> products = productRepository.findAllById(ids);
-        List<OrderProduct> orderProductList = new ArrayList<>();
-
-        for (Product product : products) {
-
-            OrderProductId orderProductId = new OrderProductId(order.getId(), product.getId());
-            OrderProduct orderProduct = orderProductRepository.findById(orderProductId.getOrderId(),orderProductId.getProductId())
-                    .orElse(new OrderProduct());
-
-
-            orderProduct.setOrder(order);
-            orderProduct.setProduct(product);
-
-
-            for (ProductRequestDto productRequestDto : orderRequest.getProducts()) {
-                if (product.getId() == productRequestDto.getProductId()) {
-                    orderProduct.setProductQuantity(productRequestDto.getProductQuantity());
-                    orderProduct.setProductTotal(productRequestDto.getProductTotalPrice());
-                }
+            List<Integer> ids = new ArrayList<>();
+            for (ProductRequestDto pDto : orderRequest.getProducts()) {
+                ids.add(pDto.getProductId());
             }
 
-            orderProductList.add(orderProduct);
+            List<Product> products = productRepository.findAllById(ids);
+            List<OrderProduct> orderProductList = new ArrayList<>();
+
+            for (Product product : products) {
+
+                OrderProductId orderProductId = new OrderProductId(order.getId(), product.getId());
+                OrderProduct orderProduct = orderProductRepository.findById(orderProductId.getOrderId(),orderProductId.getProductId())
+                        .orElse(new OrderProduct());
+
+                orderProduct.setOrder(order);
+                orderProduct.setProduct(product);
+
+                for (ProductRequestDto productRequestDto : orderRequest.getProducts()) {
+                    if (product.getId() == productRequestDto.getProductId()) {
+                        orderProduct.setProductQuantity(productRequestDto.getProductQuantity());
+                        orderProduct.setProductTotal(productRequestDto.getProductTotalPrice());
+                    }
+                }
+
+                orderProductList.add(orderProduct);
+            }
+
+            order.setOrderProducts(orderProductList);
+
+        }else{
+            order.setOrderProducts(new ArrayList<>());
         }
 
-        order.setOrderProducts(orderProductList);
         return order;
     }
 
