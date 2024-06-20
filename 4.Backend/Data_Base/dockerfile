@@ -1,0 +1,8 @@
+FROM postgres:latest
+
+ENV POSTGRES_PASSWORD=ecommerce
+ENV POSTGRES_USER=ecommerce
+
+COPY Initial.sql /docker-entrypoint-initdb.d/
+
+RUN chmod +r /docker-entrypoint-initdb.d/Initial.sql

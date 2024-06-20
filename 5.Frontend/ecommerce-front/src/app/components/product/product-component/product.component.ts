@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from 'src/app/services/product/product.service';
 import { ProductListModel } from 'src/app/models/product/product-list.model';
 import { ProductResponseModel } from 'src/app/models/product/product-response.model'
